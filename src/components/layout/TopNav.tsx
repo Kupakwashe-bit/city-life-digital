@@ -1,11 +1,17 @@
 
-import { Bell, User, Menu } from "lucide-react";
+import { Bell, User, Menu, LogOut, Shield } from "lucide-react";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 interface TopNavProps {
   openSidebar: () => void;
+  userName: string;
+  userRole: UserRole;
 }
 
-const TopNav = ({ openSidebar }: TopNavProps) => {
+const TopNav = ({ openSidebar, userName, userRole }: TopNavProps) => {
+  const { logout } = useAuth();
+
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6">
       <div className="flex items-center">
@@ -25,10 +31,29 @@ const TopNav = ({ openSidebar }: TopNavProps) => {
         </button>
         
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
+          <div className="h-8 rounded-full bg-primary/20 flex items-center justify-center px-3">
+            {userRole === "admin" ? (
+              <div className="flex items-center">
+                <Shield className="w-4 h-4 text-primary mr-1" />
+                <span className="text-xs font-medium text-primary">Admin</span>
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <User className="w-4 h-4 text-primary mr-1" />
+                <span className="text-xs font-medium text-primary">Citizen</span>
+              </div>
+            )}
           </div>
-          <span className="hidden md:inline-block text-sm font-medium">John Doe</span>
+          <span className="hidden md:inline-block text-sm font-medium">{userName}</span>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={logout}
+            className="text-gray-600"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="sr-only md:not-sr-only md:ml-2">Logout</span>
+          </Button>
         </div>
       </div>
     </header>

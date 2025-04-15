@@ -1,18 +1,46 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, Mail, Lock, ArrowRight } from "lucide-react";
+import { Building2, Mail, Lock, ArrowRight, Shield } from "lucide-react";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<UserRole>("user");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+  const { toast } = useToast();
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would authenticate the user
-    console.log("Login attempt:", { email, password });
-    // Redirect to dashboard after login
-    window.location.href = "/dashboard";
+    setIsLoading(true);
+    
+    try {
+      // For demo purposes:
+      // Admin credentials: admin@example.com / password
+      // User credentials: user@example.com / password
+      const success = login(email, password, role);
+      
+      if (!success) {
+        toast({
+          title: "Login failed",
+          description: "Invalid email or password for the selected role.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "An error occurred during login.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   return (
@@ -33,9 +61,9 @@ const Login = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <Label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
-              </label>
+              </Label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-gray-400" />
@@ -55,9 +83,9 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
-              </label>
+              </Label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-gray-400" />
@@ -73,6 +101,51 @@ const Login = () => {
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="••••••••"
                 />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Login as
+              </Label>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <div
+                  className={`flex items-center justify-center px-3 py-2 border ${
+                    role === "user"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-300 text-gray-700"
+                  } rounded-md cursor-pointer hover:bg-gray-50`}
+                  onClick={() => setRole("user")}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    checked={role === "user"}
+                    onChange={() => setRole("user")}
+                    className="sr-only"
+                  />
+                  <span className="ml-2">Citizen</span>
+                </div>
+                <div
+                  className={`flex items-center justify-center px-3 py-2 border ${
+                    role === "admin"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-300 text-gray-700"
+                  } rounded-md cursor-pointer hover:bg-gray-50`}
+                  onClick={() => setRole("admin")}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    checked={role === "admin"}
+                    onChange={() => setRole("admin")}
+                    className="sr-only"
+                  />
+                  <Shield className="h-4 w-4 mr-2" />
+                  <span>Admin</span>
+                </div>
               </div>
             </div>
 
@@ -96,15 +169,14 @@ const Login = () => {
               </div>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                Sign in
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full flex justify-center items-center"
+              disabled={isLoading}
+            >
+              {isLoading ? "Signing in..." : "Sign in"}
+              {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+            </Button>
           </form>
 
           <div className="mt-6">

@@ -1,15 +1,22 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Building2, User, Mail, Lock, Check, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Building2, User, Mail, Lock, Check, ArrowLeft, Shield } from "lucide-react";
+import { UserRole } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
+    role: "user" as UserRole,
   });
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,18 +24,33 @@ const Register = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
+  const handleRoleChange = (selectedRole: UserRole) => {
+    setFormData(prev => ({ ...prev, role: selectedRole }));
+  };
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast({
+        title: "Registration failed",
+        description: "Passwords do not match!",
+        variant: "destructive",
+      });
+      setIsLoading(false);
       return;
     }
     
     // In a real app, this would register the user
-    console.log("Registration attempt:", formData);
-    // Redirect to login after registration
-    window.location.href = "/login";
+    setTimeout(() => {
+      toast({
+        title: "Registration successful",
+        description: "Your account has been created.",
+      });
+      navigate("/login");
+      setIsLoading(false);
+    }, 1000);
   };
   
   return (
@@ -109,6 +131,51 @@ const Register = () => {
             </div>
 
             <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Account type
+              </label>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <div
+                  className={`flex items-center justify-center px-3 py-2 border ${
+                    formData.role === "user"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-300 text-gray-700"
+                  } rounded-md cursor-pointer hover:bg-gray-50`}
+                  onClick={() => handleRoleChange("user")}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value="user"
+                    checked={formData.role === "user"}
+                    onChange={() => handleRoleChange("user")}
+                    className="sr-only"
+                  />
+                  <span className="ml-2">Citizen</span>
+                </div>
+                <div
+                  className={`flex items-center justify-center px-3 py-2 border ${
+                    formData.role === "admin"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-300 text-gray-700"
+                  } rounded-md cursor-pointer hover:bg-gray-50`}
+                  onClick={() => handleRoleChange("admin")}
+                >
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    checked={formData.role === "admin"}
+                    onChange={() => handleRoleChange("admin")}
+                    className="sr-only"
+                  />
+                  <Shield className="h-4 w-4 mr-2" />
+                  <span>Admin</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
@@ -165,14 +232,13 @@ const Register = () => {
               </label>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                Create account
-              </button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "Creating account..." : "Create account"}
+            </Button>
           </form>
 
           <div className="mt-6">
