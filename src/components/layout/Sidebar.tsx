@@ -17,7 +17,8 @@ import {
   ClipboardList,
   Activity,
   Shield,
-  LogOut
+  LogOut,
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
