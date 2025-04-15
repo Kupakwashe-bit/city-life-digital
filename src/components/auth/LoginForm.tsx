@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { RoleSelector } from "./RoleSelector";
+import { RememberMeCheckbox } from "./RememberMeCheckbox";
+import { ForgotPasswordLink } from "./ForgotPasswordLink";
+import { CreateAccountLink } from "./CreateAccountLink";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -21,6 +24,7 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
+      // Fix the TypeScript error by storing the result in a variable
       const success = await login(email, password, role);
       
       if (!success) {
