@@ -15,7 +15,7 @@ export const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("user");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { directAccess } = useAuth();
   const { toast } = useToast();
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,15 +26,14 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      console.log("Attempting login with:", { email, password, role });
-      
-      // The login function handles all success/error toasts internally
-      await login(email, password, role);
+      console.log("Attempting direct access with role:", role);
+      // Use directAccess instead of login
+      directAccess(role);
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Access error:", error);
       toast({
-        title: "Login failed",
-        description: "An unexpected error occurred during login.",
+        title: "Access failed",
+        description: "An unexpected error occurred.",
         variant: "destructive",
       });
     } finally {
