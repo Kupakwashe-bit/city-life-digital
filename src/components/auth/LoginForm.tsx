@@ -24,23 +24,21 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
+      console.log("Login attempt:", { email, role }); // Debug log
       const success = await login(email, password, role);
       
       if (!success) {
-        toast({
-          title: "Login failed",
-          description: `Invalid email or password for the selected ${role} role.`,
-          variant: "destructive",
-        });
+        // The login function now handles the specific toast message for different error cases
+        console.log("Login failed in component"); // Debug log
       }
       // If success is true, the login function will handle navigation and success toast
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Login failed",
         description: "An unexpected error occurred during login.",
         variant: "destructive",
       });
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
