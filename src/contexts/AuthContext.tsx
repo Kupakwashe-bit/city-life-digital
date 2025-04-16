@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 // Define user types with roles
 export type UserRole = "user" | "admin";
@@ -14,7 +15,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: UserRole) => void;
+  login: (email: string, password: string, role: UserRole) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -55,6 +56,7 @@ const MOCK_USERS = [
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Check for existing session on mount
   useEffect(() => {
@@ -64,25 +66,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   }, []);
 
-  const login = (email: string, password: string, role: UserRole) => {
+  const login = async (email: string, password: string, role: UserRole): Promise<boolean> => {
     // In a real app, you would validate credentials with your backend
     // For now, we'll use our mock data
-    let foundUser;
-    
-    if (role === "admin") {
-      foundUser = MOCK_USERS.find(
-        (u) => u.email === email && u.password === password && u.role === "admin"
-      );
-    } else {
-      foundUser = MOCK_USERS.find(
-        (u) => u.email === email && u.password === password && u.role === "user"
-      );
-    }
+    const foundUser = MOCK_USERS.find(
+      (u) => u.email === email && u.password === password && u.role === role
+    );
 
     if (foundUser) {
       const { password, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+      
+      // Show success toast
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${userWithoutPassword.name}!`,
+      });
+      
       navigate("/dashboard");
       return true;
     }
