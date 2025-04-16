@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
@@ -24,20 +23,15 @@ export const LoginForm = () => {
     setIsLoading(true);
     
     try {
-      // Fix the TypeScript error by storing the result in a variable
-      const success = await login(email, password, role);
+      // Call login method - it returns a boolean in AuthContext
+      await login(email, password, role);
       
-      if (!success) {
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password for the selected role.",
-          variant: "destructive",
-        });
-      }
+      // We don't need to check the return value as login() handles navigation on success
+      // If login fails, it would throw an error that gets caught in the catch block
     } catch (error) {
       toast({
         title: "Login failed",
-        description: "An error occurred during login.",
+        description: "Invalid email or password for the selected role.",
         variant: "destructive",
       });
     } finally {
