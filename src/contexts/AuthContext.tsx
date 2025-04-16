@@ -67,44 +67,46 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const login = async (email: string, password: string, role: UserRole): Promise<boolean> => {
-    console.log("Login attempt:", { email, role }); // Debug log
+    console.log("Login attempt with:", { email, password, role });
     
-    // In a real app, you would validate credentials with your backend
-    // For now, we'll use our mock data - ignore role initially to check credentials
+    // Find user by email and password first
     const foundUser = MOCK_USERS.find(
       (u) => u.email === email && u.password === password
     );
 
-    console.log("Found user:", foundUser); // Debug log
+    console.log("Found user:", foundUser);
 
-    if (foundUser) {
-      // Now verify if the role matches
-      if (foundUser.role === role) {
-        const { password, ...userWithoutPassword } = foundUser;
-        setUser(userWithoutPassword);
-        localStorage.setItem("user", JSON.stringify(userWithoutPassword));
-        
-        // Show success toast
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${userWithoutPassword.name}!`,
-        });
-        
-        navigate("/dashboard");
-        return true;
-      } else {
-        console.log("Role mismatch: User found but incorrect role selected"); // Debug log
-        toast({
-          title: "Login failed",
-          description: `This account exists but is not a ${role} account.`,
-          variant: "destructive",
-        });
-        return false;
-      }
+    if (!foundUser) {
+      toast({
+        title: "Login failed",
+        description: "Invalid email or password.",
+        variant: "destructive",
+      });
+      return false;
     }
+
+    // Check if user role matches the selected role
+    if (foundUser.role !== role) {
+      toast({
+        title: "Login failed",
+        description: `This account exists but is not a ${role} account.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Successful login
+    const { password: pwd, ...userWithoutPassword } = foundUser;
+    setUser(userWithoutPassword);
+    localStorage.setItem("user", JSON.stringify(userWithoutPassword));
     
-    console.log("No matching user found"); // Debug log
-    return false;
+    toast({
+      title: "Login successful",
+      description: `Welcome back, ${userWithoutPassword.name}!`,
+    });
+    
+    navigate("/dashboard");
+    return true;
   };
 
   const logout = () => {

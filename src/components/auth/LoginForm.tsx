@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -21,17 +20,16 @@ export const LoginForm = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isLoading) return; // Prevent multiple submissions
+    
     setIsLoading(true);
     
     try {
-      console.log("Login attempt:", { email, role }); // Debug log
-      const success = await login(email, password, role);
+      console.log("Attempting login with:", { email, password, role });
       
-      if (!success) {
-        // The login function now handles the specific toast message for different error cases
-        console.log("Login failed in component"); // Debug log
-      }
-      // If success is true, the login function will handle navigation and success toast
+      // The login function handles all success/error toasts internally
+      await login(email, password, role);
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -99,11 +97,11 @@ export const LoginForm = () => {
 
       <Button
         type="submit"
-        className="w-full flex justify-center items-center"
+        className="w-full flex justify-center items-center gap-2"
         disabled={isLoading}
       >
         {isLoading ? "Signing in..." : "Sign in"}
-        {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
+        {!isLoading && <ArrowRight className="h-4 w-4" />}
       </Button>
 
       <CreateAccountLink />
